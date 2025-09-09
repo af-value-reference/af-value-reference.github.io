@@ -179,7 +179,7 @@
     const $ = (s,el=document)=>el.querySelector(s);
     const fmt = n => `${Number(n).toLocaleString()} AFU`;
 
-    fetch('/items.json').then(r => r.ok ? r.json() : Promise.reject()).then(data => {
+    fetch('./items.json').then(r => r.ok ? r.json() : Promise.reject()).then(data => {
       if(Array.isArray(data) && data.length) ITEMS = data.map(normalize);
       else ITEMS = FALLBACK.map(normalize);
       boot();
