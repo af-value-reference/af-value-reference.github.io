@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Skyblock Catalog — Wraithcode</title>
+  <style>
+    :root{
+      --fg:#eaf6ff; --muted:#9db0bf; --bg-1:#06070a; --bg-2:#0f1720; --panel:#0b1220; --accent:#60e0ff; --glass:rgba(255,255,255,0.03);
+      --card-glow: 0 8px 30px rgba(96,224,255,0.06), inset 0 1px 0 rgba(255,255,255,0.02);
+      --glass-border: 1px solid rgba(255,255,255,1);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:var(--fg); -webkit-font-smoothing:antialiased;
+      padding:28px; overflow:hidden;
+    }
+
+    /* subtle animated background */
+    .bg-anim{
+      position:fixed;inset:0;z-index:-1;overflow:hidden;
+      background:radial-gradient(circle at 30% 30%, rgba(96,224,255,0.06), transparent 40%),
+                 radial-gradient(circle at 70% 70%, rgba(96,224,255,0.05), transparent 40%);
+      animation:bgShift 22s ease-in-out infinite alternate;
+      filter: blur(10px) saturate(110%);
+    }
+    @keyframes bgShift{0%{background-position:30% 30%,70% 70%}100%{background-position:40% 20%,60% 80%}}
+
+    .container{max-width:1200px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:22px;margin:0}
+    p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+    /* controls */
+    .controls{display:flex;gap:10px;align-items:center}
+    .search{background:var(--panel);border:var(--glass-border);padding:8px 10px;border-radius:10px;display:flex;gap:8px;align-items:center}
+    .search input{background:transparent;border:0;color:var(--fg);outline:none;width:260px}
+    .search input::placeholder{color:rgba(255,255,255,0.45)}
+    .btn{background:rgba(255,255,255,0.04);border:var(--glass-border);padding:8px 10px;border-radius:8px;color:var(--fg);cursor:pointer;transition:background .18s, box-shadow .18s}
+    .btn:hover{background:rgba(96,224,255,0.08);box-shadow:0 8px 20px rgba(96,224,255,0.04)}
+
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)); border-radius:14px;padding:14px;border:var(--glass-border);box-shadow:var(--card-glow)}
+
+    /* filter area */
+    .filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+    .filters .row{display:flex;gap:8px;align-items:center}
+    .input-number{width:100px;padding:8px;border-radius:8px;border:0;background:rgba(255,255,255,0.04);color:var(--fg)}
+
+    /* range styles (similarity slider) */
+    input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:999px;background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));outline:none;cursor:pointer}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px rgba(96,224,255,0.22)}
+    input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px rgba(96,224,255,0.22)}
+
+    /* custom dropdown styling using wrapper */
+    .select-wrap{position:relative;display:inline-block}
+    .select-wrap::after{content:'';position:absolute;right:12px;top:50%;transform:translateY(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--muted);pointer-events:none}
+    .select-wrap:focus-within::after{border-top-color:var(--accent);filter:drop-shadow(0 6px 18px rgba(96,224,255,0.14))}
+    select{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,0.03);color:var(--fg);border-radius:8px;padding:8px 36px 8px 10px;border:var(--glass-border);cursor:pointer;min-width:160px}
+    select:focus{outline:none;box-shadow:0 10px 40px rgba(96,224,255,0.12)}
+
+    /* grid as compact vertical list */
+    main{flex:1;overflow:auto}
+    .grid{display:flex;flex-direction:column;gap:8px;padding:8px 6px}
+    .card{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;border:var(--glass-border);background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
+    .card:hover{transform:translateX(6px);box-shadow:0 10px 30px rgba(96,224,255,0.12)}
+    .thumb{width:56px;height:56px;border-radius:8px;flex:0 0 56px;object-fit:cover;border:1px solid rgba(255,255,255,0.04)}
+    .meta{flex:1;min-width:0}
+    .name{font-weight:600;color:var(--fg)}
+    .id{font-family:var(--mono);font-size:12px;color:var(--muted);display:block}
+    .desc{font-size:13px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .value{font-family:var(--mono);font-weight:700;color:var(--accent);white-space:nowrap}
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:linear-gradient(180deg, rgba(2,6,23,0.7), rgba(2,6,23,0.85));display:flex;align-items:center;justify-content:center;padding:22px}
+    .modal{width:100%;max-width:960px;background:linear-gradient(180deg, rgba(10,14,18,0.96), rgba(5,8,12,0.96));border-radius:14px;padding:18px;border:var(--glass-border);box-shadow:0 12px 40px rgba(96,224,255,0.15);opacity:0;transform:translateY(8px) scale(.995);transition:opacity .18s ease, transform .18s cubic-bezier(.2,.9,.2,1)}
+    .modal.open{opacity:1;transform:translateY(0) scale(1)}
+    .modal-head{display:flex;gap:12px;align-items:center}
+    .modal-grid{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-top:12px}
+    .similar{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow:auto;padding-right:6px}
+    .similar-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.015)}
+
+    /* modern scrollbar (webkit & firefox) */
+    main::-webkit-scrollbar, .similar::-webkit-scrollbar{width:10px;height:10px}
+    main::-webkit-scrollbar-track, .similar::-webkit-scrollbar-track{background:transparent}
+    main::-webkit-scrollbar-thumb, .similar::-webkit-scrollbar-thumb{background:linear-gradient(180deg, rgba(96,224,255,0.3), rgba(96,224,255,0.15));border-radius:10px;border:2px solid rgba(0,0,0,0);background-clip:padding-box;box-shadow:0 6px 18px rgba(96,224,255,0.12)}
+    main::-webkit-scrollbar-thumb:hover, .similar::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg, rgba(96,224,255,0.45), rgba(96,224,255,0.25))}
+
+    main, .similar{scrollbar-width:thin;scrollbar-color: rgba(96,224,255,0.25) transparent}
+
+    footer{margin-top:12px;color:var(--muted);font-size:13px}
+
+    @media (max-width:800px){.modal-grid{grid-template-columns:1fr}.controls{flex-direction:column;align-items:flex-start;gap:8px}}
+  </style>
+</head>
+<body>
+  <div class="bg-anim" aria-hidden></div>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Skyblock Value Reference <span style="color:var(--muted);font-weight:400">— AsianF4rmer</span></h1>
+        <p class="lead">Add items to <code style="font-family:var(--mono)">/items.json</code>. Click an item for similar-value matches.</p>
+      </div>
+
+      <div class="controls">
+        <div class="search panel">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.9"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input id="search" placeholder="Search name, desc, id..." aria-label="Search items" />
+          <button class="btn" id="reset">Reset</button>
+        </div>
+
+        <div class="panel" style="display:flex;gap:8px;align-items:center">
+          <label style="font-size:13px;color:var(--muted);margin-right:6px">Sort</label>
+          <div class="select-wrap">
+            <select id="sort" aria-label="Sort items">
+              <option value="value_desc">Price: High → Low</option>
+              <option value="value_asc">Price: Low → High</option>
+              <option value="name_asc">Name A → Z</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel filters">
+      <div>
+        <div style="font-size:13px;color:var(--muted)">Price filter</div>
+        <div class="row" style="margin-top:8px">
+          <input id="minPrice" class="input-number" type="number" aria-label="Minimum price" />
+          <span style="color:var(--muted)">to</span>
+          <input id="maxPrice" class="input-number" type="number" aria-label="Maximum price" />
+          <button class="btn" id="all">All</button>
+        </div>
+        <div style="margin-top:10px;color:var(--muted);font-size:13px">Items in DB: <span id="dbCount"></span> · Showing: <span id="showCount"></span></div>
+      </div>
+
+      <div>
+        <div style="font-size:13px;color:var(--muted)">Quick ranges</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="low10">Lowest 10%</button>
+          <button class="btn" id="lowMid">Low-Mid</button>
+          <button class="btn" id="top50">Top 50%</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <label style="font-size:13px;color:var(--muted)">Similarity ±%</label>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+            <input id="simRange" type="range" min="1" max="50" value="10" aria-label="Similarity percent" />
+            <div id="simLabel" style="font-family:var(--mono);min-width:40px;text-align:center">10%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <div id="grid" class="grid" role="list"></div>
+    </main>
+
+    <footer>hi shini</footer>
+  </div>
+
+  <div id="modalRoot" aria-hidden="true"></div>
+
+  <script>
+    const FALLBACK = [
+      { id: "motp", name: "Mask of the Pack", desc: "...", value: 10000, img: "https://via.placeholder.com/96?text=Cobble" },
+      { id: "dagger", name: "Steel Dagger", desc: "...", value: 500, img: "https://via.placeholder.com/96?text=Stone" },
+      { id: "vchest", name: "Valor Chestplate", desc: "...", value: 10500, img: "https://via.placeholder.com/96?text=Ingot" },
+      { id: "hillshine", name: "Hillshine Leather", desc: "...", value: 30, img: "https://via.placeholder.com/96?text=Pick" },
+      { id: "striders", name: "Timber Striders", desc: "...", value: 8000, img: "https://via.placeholder.com/96?text=Apple" }
+    ];
+
+    let ITEMS = [];
+    let filtered = [];
+    let bounds = {min:0,max:0};
+
+    const $ = (s,el=document)=>el.querySelector(s);
+    const fmt = n => `${Number(n).toLocaleString()} AFU`;
+
+    fetch('/items.json').then(r => r.ok ? r.json() : Promise.reject()).then(data => {
+      if(Array.isArray(data) && data.length) ITEMS = data.map(normalize);
+      else ITEMS = FALLBACK.map(normalize);
+      boot();
+    }).catch(()=>{ ITEMS = FALLBACK.map(normalize); boot(); });
+
+    function normalize(it){ return { id: it.id || (it.name||'').toLowerCase().replace(/\s+/g,'_'), name: it.name||'Unknown', desc: it.desc||'', value: Number(it.value)||0, img: it.img||'https://via.placeholder.com/96?text=Item' } }
+
+    function boot(){
+      bounds = getBounds(ITEMS);
+      $('#dbCount').textContent = ITEMS.length;
+      $('#minPrice').value = bounds.min; $('#maxPrice').value = bounds.max; $('#showCount').textContent = ITEMS.length;
+      filtered = ITEMS.slice(); renderGrid(); attachEvents();
+    }
+
+    function getBounds(list){ if(!list.length) return {min:0,max:0}; const vals = list.map(i=>i.value); return {min: Math.min(...vals), max: Math.max(...vals)} }
+
+    function renderGrid(){
+      const grid = $('#grid'); grid.innerHTML = '';
+      if(!filtered.length){ grid.innerHTML = '<div style="color:var(--muted)">No items match filters.</div>'; $('#showCount').textContent = 0; return }
+      $('#showCount').textContent = filtered.length;
+      filtered.forEach(it => {
+        const btn = document.createElement('button'); btn.className='card'; btn.setAttribute('role','listitem');
+        btn.innerHTML = `
+          <img loading="lazy" src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}" class="thumb" />
+          <div class="meta">
+            <div class="name">${escapeHtml(it.name)} <span class="id">${escapeHtml(it.id)}</span></div>
+            <div class="desc">${escapeHtml(it.desc)}</div>
+          </div>
+          <div class="value">${fmt(it.value)}</div>`;
+        btn.addEventListener('click', ()=>openModal(it));
+        grid.appendChild(btn);
+      })
+    }
+
+    function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;') }
+
+    function attachEvents(){
+      $('#search').addEventListener('input', applyFilters);
+      $('#minPrice').addEventListener('input', applyFilters);
+      $('#maxPrice').addEventListener('input', applyFilters);
+      $('#sort').addEventListener('change', applyFilters);
+      $('#reset').addEventListener('click', ()=>{ $('#search').value=''; $('#minPrice').value=bounds.min; $('#maxPrice').value=bounds.max; $('#sort').value='value_desc'; applyFilters(); });
+      $('#all').addEventListener('click', ()=>{ $('#minPrice').value=bounds.min; $('#maxPrice').value=bounds.max; applyFilters(); });
+      $('#low10').addEventListener('click', ()=>{ const r=bounds; $('#minPrice').value=r.min; $('#maxPrice').value=Math.round(r.min + (r.max-r.min)*0.1); applyFilters(); });
+      $('#lowMid').addEventListener('click', ()=>{ const r=bounds; $('#minPrice').value=Math.round(r.min + (r.max-r.min)*0.1); $('#maxPrice').value=Math.round(r.min + (r.max-r.min)*0.5); applyFilters(); });
+      $('#top50').addEventListener('click', ()=>{ const r=bounds; $('#minPrice').value=Math.round(r.min + (r.max-r.min)*0.5); $('#maxPrice').value=r.max; applyFilters(); });
+
+      // update similarity label
+      const sim = $('#simRange'); const simLabel = $('#simLabel');
+      sim.addEventListener('input', (e)=>{ simLabel.textContent = e.target.value + '%'; });
+    }
+
+    function applyFilters(){
+      const q = ($('#search').value||'').trim().toLowerCase();
+      const min = Number($('#minPrice').value || 0);
+      const max = Number($('#maxPrice').value || 0);
+      const sort = $('#sort').value;
+      filtered = ITEMS.filter(it => it.value >= min && it.value <= max && ( !q || it.name.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q) || it.id.toLowerCase().includes(q) ));
+      if(sort === 'value_asc') filtered.sort((a,b)=>a.value-b.value);
+      else if(sort === 'value_desc') filtered.sort((a,b)=>b.value-a.value);
+      else if(sort === 'name_asc') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+      renderGrid();
+    }
+
+    // modal logic with smooth open animation
+    function openModal(base){
+      const root = $('#modalRoot'); root.innerHTML = '';
+      const back = document.createElement('div'); back.className='modal-backdrop';
+      back.addEventListener('click', (e)=>{ if(e.target===back) closeModal(root); });
+
+      const modal = document.createElement('div'); modal.className='modal';
+      modal.innerHTML = `
+        <div class="modal-head">
+          <img src="${escapeHtml(base.img)}" class="thumb" style="width:84px;height:84px;border-radius:12px" />
+          <div>
+            <div style="font-size:18px;font-weight:700">${escapeHtml(base.name)}</div>
+            <div class="id" style="margin-top:6px">${escapeHtml(base.id)}</div>
+            <div class="desc" style="margin-top:8px;color:var(--muted)">${escapeHtml(base.desc)}</div>
+            <div style="margin-top:10px;font-family:var(--mono);font-weight:700">Value: ${fmt(base.value)}</div>
+          </div>
+          <div style="margin-left:auto"><button id="closeModal" class="btn">Close</button></div>
+        </div>
+
+        <div class="modal-grid">
+          <div>
+            <h3 style="margin:0;color:var(--muted)">Items with similar value</h3>
+            <div style="font-size:13px;color:var(--muted);margin-top:6px">Within ±<span id="simPct">${$('#simRange')?$('#simRange').value:10}</span>%</div>
+            <div id="similarList" style="margin-top:12px" class="similar"></div>
+          </div>
+
+          <div>
+            <div style="font-size:13px;color:var(--muted)">Adjust similarity</div>
+            <input id="simAdjust" type="range" min="1" max="50" value="${$('#simRange')?$('#simRange').value:10}" style="width:100%;margin-top:8px" />
+            <div style="margin-top:10px;color:var(--muted);font-size:13px">Click any similar item to open it here.</div>
+          </div>
+        </div>
+      `;
+
+      back.appendChild(modal); root.appendChild(back);
+      document.body.style.overflow = 'hidden';
+
+      // animate open
+      requestAnimationFrame(()=> modal.classList.add('open'));
+
+      $('#closeModal').addEventListener('click', ()=> closeModal(root));
+      $('#simAdjust').addEventListener('input', (e)=>{ $('#simPct').textContent = e.target.value + '%'; populateSimilar(base, Number(e.target.value)); });
+      populateSimilar(base, Number($('#simAdjust').value));
+    }
+
+    function closeModal(root){
+      const modal = root.querySelector('.modal');
+      if(modal){ modal.classList.remove('open'); setTimeout(()=>{ root.innerHTML=''; document.body.style.overflow = ''; }, 180); } else { root.innerHTML = ''; document.body.style.overflow = ''; }
+    }
+
+    function populateSimilar(base, pct){
+      const list = findSimilar(base, pct);
+      const holder = $('#similarList'); holder.innerHTML = '';
+      if(!list.length){ holder.innerHTML = '<div style="color:var(--muted)">No similar items in current database.</div>'; return }
+      list.forEach(s => {
+        const div = document.createElement('div'); div.className='similar-item';
+        div.innerHTML = `
+          <img src="${escapeHtml(s.img)}" class="thumb" style="width:48px;height:48px" />
+          <div style="flex:1">
+            <div style="font-weight:600;color:var(--fg)">${escapeHtml(s.name)}</div>
+            <div style="font-size:13px;color:var(--muted)">${fmt(s.value)}</div>
+          </div>
+          <div><button class="btn small">Open</button></div>`;
+        div.querySelector('button').addEventListener('click', ()=> openModal(s));
+        holder.appendChild(div);
+      })
+    }
+
+    function findSimilar(base, pct){
+      if(!base) return [];
+      const low = base.value * (1 - pct/100); const high = base.value * (1 + pct/100);
+      return ITEMS.filter(it=>it.id !== base.id && it.value >= low && it.value <= high).sort((a,b)=>Math.abs(a.value-base.value)-Math.abs(b.value-base.value));
+    }
+  </script>
+</body>
+</html>
+
