@@ -179,11 +179,31 @@
     const $ = (s,el=document)=>el.querySelector(s);
     const fmt = n => `${Number(n).toLocaleString()} AFU`;
 
-    fetch('./items.json').then(r => r.ok ? r.json() : Promise.reject()).then(data => {
-      if(Array.isArray(data) && data.length) ITEMS = data.map(normalize);
-      else ITEMS = FALLBACK.map(normalize);
-      boot();
-    }).catch(()=>{ ITEMS = FALLBACK.map(normalize); boot(); });
+    console.log("Fetching items.json...");
+
+fetch('./items.json')
+  .then(r => {
+    console.log("Fetch response:", r.status, r.statusText);
+    if (r.ok) return r.json();
+    throw new Error("Fetch failed with status " + r.status);
+  })
+  .then(data => {
+    console.log("Fetched data:", data);
+    if (Array.isArray(data) && data.length) {
+      console.log("Using external items.json");
+      ITEMS = data.map(normalize);
+    } else {
+      console.warn("items.json is empty or not an array, using FALLBACK");
+      ITEMS = FALLBACK.map(normalize);
+    }
+    boot();
+  })
+  .catch(err => {
+    console.error("Error fetching items.json:", err);
+    console.log("Falling back to default items.");
+    ITEMS = FALLBACK.map(normalize);
+    boot();
+  });
 
     function normalize(it){ return { id: it.id || (it.name||'').toLowerCase().replace(/\s+/g,'_'), name: it.name||'Unknown', desc: it.desc||'', value: Number(it.value)||0, img: it.img||'https://via.placeholder.com/96?text=Item' } }
 
