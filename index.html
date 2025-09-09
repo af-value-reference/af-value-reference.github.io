@@ -179,28 +179,30 @@
     const $ = (s,el=document)=>el.querySelector(s);
     const fmt = n => `${Number(n).toLocaleString()} AFU`;
 
-    console.log("Fetching items.json...");
-
-fetch('./items.json')
+    fetch('/items.json')
   .then(r => {
-    console.log("Fetch response:", r.status, r.statusText);
-    if (r.ok) return r.json();
-    throw new Error("Fetch failed with status " + r.status);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.text(); // get raw text first
   })
-  .then(data => {
-    console.log("Fetched data:", data);
-    if (Array.isArray(data) && data.length) {
-      console.log("Using external items.json");
-      ITEMS = data.map(normalize);
-    } else {
-      console.warn("items.json is empty or not an array, using FALLBACK");
+  .then(text => {
+    try {
+      const data = JSON.parse(text); // manual parse so we can catch syntax
+      console.log("Loaded JSON:", data);
+
+      if (Array.isArray(data) && data.length) {
+        ITEMS = data.map(normalize);
+      } else {
+        console.warn("Data not an array with length, using fallback");
+        ITEMS = FALLBACK.map(normalize);
+      }
+    } catch (e) {
+      console.error("JSON syntax error:", e, "\nRaw text was:", text);
       ITEMS = FALLBACK.map(normalize);
     }
     boot();
   })
   .catch(err => {
-    console.error("Error fetching items.json:", err);
-    console.log("Falling back to default items.");
+    console.error("Fetch failed:", err);
     ITEMS = FALLBACK.map(normalize);
     boot();
   });
