@@ -58,7 +58,7 @@
   .meta h3{ margin:0; font-size:15px }
   .meta .id{ font-size:12px; color:var(--muted); margin-top:4px }
   .meta p{ margin:6px 0 0; font-size:13px; color:var(--muted); line-height:1.2 }
-  .value{ font-weight:800; color:var(--accent); font-size:14px; min-width:84px; text-align:right }
+  .value{ font-weight:800; color:var(--accent); font-size:14px; min-width:84px; }
 
   .pagination{ display:flex; gap:8px; align-items:center; justify-content:center; margin-top:16px }
   .page-btn{ padding:8px 10px; border-radius:8px; border:0; background:var(--glass); color:var(--muted); cursor:pointer }
@@ -370,15 +370,17 @@ function renderGrid(){
       card.dataset.id = it.id;
       // build inner content using template but include safe onerror guard
       card.innerHTML = `
-        <div class="thumb"><img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}" loading="lazy" decoding="async" onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src='https://via.placeholder.com/128?text=No+Image';}"></div>
-        <div class="meta">
-          <h3>${escapeHtml(it.name)}</h3>
-          <div class="id">${escapeHtml(it.id)}</div>
-          <p>${escapeHtml(truncate(it.desc,80))}</p>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-          <div class="value">${formatNumber(it.value)}</div>
-          <div><button class="btn" data-id="${escapeHtml(it.id)}">Details</button></div>
+        <div class="thumb"><img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}" loading="lazy" decoding="async" onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src='https://placeholder.co/128x128?text=No+Image';}"></div>
+        <div>
+          <div class="meta">
+            <h3>${escapeHtml(it.name)}</h3>
+            <div class="id">${escapeHtml(it.id)}</div>
+            <p>${escapeHtml(truncate(it.desc,80))}</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+            <div class="value">${formatNumber(it.value)}</div>
+            <div><button class="btn" style="padding:0px 0px !important;" data-id="${escapeHtml(it.id)}">Details</button></div>
+          </div>
         </div>
       `;
       // clicking the card anywhere (except clicks on buttons/inputs/links) opens modal
