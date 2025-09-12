@@ -1,345 +1,591 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Skyblock Value Reference</title>
-  <style>
-    :root{
-      --fg:#eaf6ff; --muted:#9db0bf; --bg-1:#06070a; --bg-2:#0f1720; --panel:#0b1220; --accent:#60e0ff; --glass:rgba(255,255,255,0.03);
-      --card-glow: 0 8px 30px rgba(96,224,255,0.06), inset 0 1px 0 rgba(255,255,255,0.02);
-      --glass-border: 1px solid rgba(255,255,255,1);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background:linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:var(--fg); -webkit-font-smoothing:antialiased;
-      padding:28px; overflow:hidden;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Futuristic Item Catalog & Value Reference — Updated</title>
+<style>
+  :root{
+    --bg:#0b0f14;
+    --panel:#0f1720;
+    --muted:#9aa6b2;
+    --accent:#4de0ff;
+    --accent-2:#8a6cff;
+    --glass: rgba(255,255,255,0.03);
+    --glass-2: rgba(255,255,255,0.02);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background: radial-gradient(1200px 500px at 10% 10%, rgba(72,85,99,0.06), transparent),
+                linear-gradient(180deg, rgba(10,12,16,1), rgba(5,7,10,1) 60%);
+    color:#e6f0f6;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+  }
 
-    /* subtle animated background */
-    .bg-anim{
-      position:fixed;inset:0;z-index:-1;overflow:hidden;
-      background:radial-gradient(circle at 30% 30%, rgba(96,224,255,0.06), transparent 40%),
-                 radial-gradient(circle at 70% 70%, rgba(96,224,255,0.05), transparent 40%);
-      animation:bgShift 22s ease-in-out infinite alternate;
-      filter: blur(10px) saturate(110%);
-    }
-    @keyframes bgShift{0%{background-position:30% 30%,70% 70%}100%{background-position:40% 20%,60% 80%}}
+  .app{ max-width:1200px; margin:0 auto; }
 
-    .container{max-width:1200px;margin:0 auto;height:100%;display:flex;flex-direction:column}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-    h1{font-size:22px;margin:0}
-    p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+  header{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; }
+  .brand{ display:flex; align-items:center; gap:12px }
+  .logo{ width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(72,85,99,0.25), inset 0 -6px 16px rgba(255,255,255,0.06); font-weight:700; color:#04121a; font-size:18px; }
+  h1{ font-size:18px; margin:0 }
+  p.lead{ margin:0; color:var(--muted); font-size:13px }
 
-    /* controls */
-    .controls{display:flex;gap:10px;align-items:center}
-    .search{background:var(--panel);border:var(--glass-border);padding:8px 10px;border-radius:10px;display:flex;gap:8px;align-items:center}
-    .search input{background:transparent;border:0;color:var(--fg);outline:none;width:260px}
-    .search input::placeholder{color:rgba(255,255,255,0.45)}
-    .btn{background:rgba(255,255,255,0.04);border:var(--glass-border);padding:8px 10px;border-radius:8px;color:var(--fg);cursor:pointer;transition:background .18s, box-shadow .18s}
-    .btn:hover{background:rgba(96,224,255,0.08);box-shadow:0 8px 20px rgba(96,224,255,0.04)}
+  .top-controls{ display:flex; gap:10px; align-items:center }
+  .tabs{ display:flex; gap:8px; padding:8px; background:var(--glass-2); border-radius:12px; }
+  .tab{ padding:10px 16px; border-radius:10px; color:var(--muted); font-weight:600; font-size:13px; transition:all .18s ease; cursor:pointer }
+  .tab.active{ background:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); color:var(--accent); box-shadow:0 6px 18px rgba(72,85,99,0.18); transform:translateY(-2px); }
 
-    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)); border-radius:14px;padding:14px;border:var(--glass-border);box-shadow:var(--card-glow)}
+  main{ display:grid; grid-template-columns: 1fr; gap:18px }
+  .panel{ background:linear-gradient(180deg,var(--panel), rgba(15,23,32,0.9)); border-radius:12px; padding:16px; box-shadow: 0 10px 30px rgba(6,9,12,0.5); border:1px solid rgba(255,255,255,0.03); overflow:hidden }
 
-    /* filter area */
-    .filters{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-    .filters .row{display:flex;gap:8px;align-items:center}
-    .input-number{width:100px;padding:8px;border-radius:8px;border:0;background:rgba(255,255,255,0.04);color:var(--fg)}
+  .toolbar{ display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+  .search{ display:flex; align-items:center; gap:8px; background:var(--glass); padding:10px; border-radius:10px; min-width:260px }
+  .search input{ background:transparent; border:0; outline:0; color:inherit; font-size:14px; width:220px }
+  .select, .btn{ padding:10px 12px; border-radius:10px; border:0; background:transparent; color:var(--muted); cursor:pointer; font-weight:600 }
+  .btn.primary{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#031018; box-shadow:0 8px 24px rgba(73,224,255,0.06); border:0 }
 
-    /* range styles (similarity slider) */
-    input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:999px;background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));outline:none;cursor:pointer}
-    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px rgba(96,224,255,0.22)}
-    input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px rgba(96,224,255,0.22)}
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin-top:14px }
+  .card{ background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border-radius:12px; padding:12px; display:flex; gap:12px; align-items:flex-start; transition:transform .16s ease, box-shadow .16s; border:1px solid rgba(255,255,255,0.02); cursor:pointer }
+  .card:hover{ transform:translateY(-6px); box-shadow:0 14px 40px rgba(2,7,12,0.6) }
+  .thumb{ width:64px; height:64px; border-radius:8px; background:#081018; flex:0 0 64px; display:flex; align-items:center; justify-content:center; overflow:hidden }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .meta{ flex:1 }
+  .meta h3{ margin:0; font-size:15px }
+  .meta .id{ font-size:12px; color:var(--muted); margin-top:4px }
+  .meta p{ margin:6px 0 0; font-size:13px; color:var(--muted); line-height:1.2 }
+  .value{ font-weight:800; color:var(--accent); font-size:14px; min-width:84px; text-align:right }
 
-    /* custom dropdown styling using wrapper */
-    .select-wrap{position:relative;display:inline-block}
-    .select-wrap::after{content:'';position:absolute;right:12px;top:50%;transform:translateY(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--muted);pointer-events:none}
-    .select-wrap:focus-within::after{border-top-color:var(--accent);filter:drop-shadow(0 6px 18px rgba(96,224,255,0.14))}
-    select{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,0.03);color:var(--fg);border-radius:8px;padding:8px 36px 8px 10px;border:var(--glass-border);cursor:pointer;min-width:160px}
-    select:focus{outline:none;box-shadow:0 10px 40px rgba(96,224,255,0.12)}
+  .pagination{ display:flex; gap:8px; align-items:center; justify-content:center; margin-top:16px }
+  .page-btn{ padding:8px 10px; border-radius:8px; border:0; background:var(--glass); color:var(--muted); cursor:pointer }
+  .page-info{ color:var(--muted); font-size:13px }
 
-    /* grid as compact vertical list */
-    main{flex:1;overflow:auto}
-    .grid{display:flex;flex-direction:column;gap:8px;padding:8px 6px}
-    .card{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;border:var(--glass-border);background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
-    .card:hover{transform:translateX(6px);box-shadow:0 10px 30px rgba(96,224,255,0.12)}
-    .thumb{width:56px;height:56px;border-radius:8px;flex:0 0 56px;object-fit:cover;border:1px solid rgba(255,255,255,0.04)}
-    .meta{flex:1;min-width:0}
-    .name{font-weight:600;color:var(--fg)}
-    .id{font-family:var(--mono);font-size:12px;color:var(--muted);display:block}
-    .desc{font-size:13px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .value{font-family:var(--mono);font-weight:700;color:var(--accent);white-space:nowrap}
+  .modal-back{ position:fixed; inset:0; background:linear-gradient(180deg, rgba(2,3,4,0.6), rgba(2,3,4,0.75)); display:none; align-items:center; justify-content:center; z-index:1000; padding:28px }
+  .modal{ width:min(800px,98%); background:linear-gradient(180deg,#07121a, #09202a); border-radius:12px; padding:18px; border:1px solid rgba(255,255,255,0.04); box-shadow:0 30px 80px rgba(2,6,10,0.8); transform:translateY(12px); opacity:0; transition:all .18s ease }
+  .modal.show{ transform:none; opacity:1 }
+  .modal .row{ display:flex; gap:12px; align-items:flex-start }
+  .modal .thumb-lg{ width:120px; height:120px; border-radius:12px; overflow:hidden; background:#041018; flex:0 0 120px }
+  .modal h2{ margin:0 }
+  .similar-list{ display:flex; flex-direction:column; gap:8px; margin-top:12px }
+  .small-item{ display:flex; justify-content:space-between; padding:8px; border-radius:8px; background:var(--glass); align-items:center }
 
-    /* modal */
-    .modal-backdrop{position:fixed;inset:0;background:linear-gradient(180deg, rgba(2,6,23,0.7), rgba(2,6,23,0.85));display:flex;align-items:center;justify-content:center;padding:22px}
-    .modal{width:100%;max-width:960px;background:linear-gradient(180deg, rgba(10,14,18,0.96), rgba(5,8,12,0.96));border-radius:14px;padding:18px;border:var(--glass-border);box-shadow:0 12px 40px rgba(96,224,255,0.15);opacity:0;transform:translateY(8px) scale(.995);transition:opacity .18s ease, transform .18s cubic-bezier(.2,.9,.2,1)}
-    .modal.open{opacity:1;transform:translateY(0) scale(1)}
-    .modal-head{display:flex;gap:12px;align-items:center}
-    .modal-grid{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-top:12px}
-    .similar{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow:auto;padding-right:6px}
-    .similar-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.015)}
+  .value-ref{ display:grid; grid-template-columns:1fr 360px; gap:16px }
+  .container{ min-height:180px; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border-radius:10px; padding:12px; border:1px dashed rgba(255,255,255,0.03); display:flex; flex-direction:column; gap:8px }
+  .container .items{ display:flex; flex-wrap:wrap; gap:8px }
+  .chip{ background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent); padding:8px 10px; border-radius:999px; border:1px solid rgba(255,255,255,0.03); display:flex; gap:8px; align-items:center; cursor:pointer }
+  .chip button{ cursor:pointer }
+  .chip .remove{ cursor:pointer; font-weight:700; color:var(--muted); padding-left:6px }
 
-    /* modern scrollbar (webkit & firefox) */
-    main::-webkit-scrollbar, .similar::-webkit-scrollbar{width:10px;height:10px}
-    main::-webkit-scrollbar-track, .similar::-webkit-scrollbar-track{background:transparent}
-    main::-webkit-scrollbar-thumb, .similar::-webkit-scrollbar-thumb{background:linear-gradient(180deg, rgba(96,224,255,0.3), rgba(96,224,255,0.15));border-radius:10px;border:2px solid rgba(0,0,0,0);background-clip:padding-box;box-shadow:0 6px 18px rgba(96,224,255,0.12)}
-    main::-webkit-scrollbar-thumb:hover, .similar::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg, rgba(96,224,255,0.45), rgba(96,224,255,0.25))}
+  .suggestions{ display:flex; flex-direction:column; gap:8px; margin-top:10px }
+  .suggestion{ display:flex; justify-content:space-between; padding:10px; border-radius:8px; background:var(--glass); align-items:center }
+  .muted{ color:var(--muted); font-size:13px }
 
-    main, .similar{scrollbar-width:thin;scrollbar-color: rgba(96,224,255,0.25) transparent}
+  footer.small{ margin-top:12px; color:var(--muted); font-size:12px; text-align:center }
 
-    footer{margin-top:12px;color:var(--muted);font-size:13px}
+  /* quick-list scroll area */
+  #quick-list{ display:flex; flex-wrap:wrap; gap:8px; max-height:320px; overflow:auto; padding:6px; border-radius:8px; margin-top:8px }
+  #quick-list button.chip{ white-space:nowrap; color:#ddd; transition: transform 0.15s ease;}
+  #quick-list button.chip:hover{transform: scale(1.1);}
 
-    @media (max-width:800px){.modal-grid{grid-template-columns:1fr}.controls{flex-direction:column;align-items:flex-start;gap:8px}}
-  </style>
+  /* pointer polish */
+  .btn, .page-btn, .tab, .chip, .card, .remove { cursor: pointer }
+  
+  .chip input {background: var(--panel); border: 1px solid var(--muted); color: #ccc; border-radius: 2px;}
+
+  @media (max-width:920px){ .value-ref{ grid-template-columns:1fr } .thumb-lg{ width:100px; height:100px } }
+
+  .accent-line{ height:4px; border-radius:6px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:0 6px 26px rgba(77,224,255,0.06); margin:12px 0; transform-origin:left; animation:grow 1s ease both }
+  @keyframes grow{ from{ transform:scaleX(.02); opacity:0 } to{ transform:scaleX(1); opacity:1 } }
+</style>
 </head>
 <body>
-  <div class="bg-anim" aria-hidden></div>
-  <div class="container">
+  <div class="app">
     <header>
-      <div>
-        <h1>Skyblock Value Reference <span style="color:var(--muted);font-weight:400">— AsianF4rmer</span></h1>
-        <p class="lead">Add items to <code style="font-family:var(--mono)">/items.json</code>. Click an item for similar-value matches.</p>
+      <div class="brand">
+        <div class="logo">∑</div>
+        <div>
+          <h1>AsianF4rmer Item Value Reference</h1>
+          <p class="lead">Made by wraithcode <3</p>
+        </div>
       </div>
 
-      <div class="controls">
-        <div class="search panel">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.9"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="search" placeholder="Search name, desc, id..." aria-label="Search items" />
-          <button class="btn" id="reset">Reset</button>
-        </div>
-
-        <div class="panel" style="display:flex;gap:8px;align-items:center">
-          <label style="font-size:13px;color:var(--muted);margin-right:6px">Sort</label>
-          <div class="select-wrap">
-            <select id="sort" aria-label="Sort items">
-              <option value="value_desc">Price: High → Low</option>
-              <option value="value_asc">Price: Low → High</option>
-              <option value="name_asc">Name A → Z</option>
-            </select>
-          </div>
+      <div class="top-controls">
+        <div class="tabs" role="tablist">
+          <div class="tab active" data-tab="catalogue" role="tab">Catalogue</div>
+          <div class="tab" data-tab="valueref" role="tab">Value Reference</div>
         </div>
       </div>
     </header>
 
-    <section class="panel filters">
-      <div>
-        <div style="font-size:13px;color:var(--muted)">Price filter</div>
-        <div class="row" style="margin-top:8px">
-          <input id="minPrice" class="input-number" type="number" aria-label="Minimum price" />
-          <span style="color:var(--muted)">to</span>
-          <input id="maxPrice" class="input-number" type="number" aria-label="Maximum price" />
-          <button class="btn" id="all">All</button>
-        </div>
-        <div style="margin-top:10px;color:var(--muted);font-size:13px">Items in DB: <span id="dbCount"></span> · Showing: <span id="showCount"></span></div>
-      </div>
+    <main>
+      <!-- Catalogue Panel -->
+      <section id="catalogue-panel" class="panel" role="region">
+        <div class="toolbar">
+          <div class="search">
+            <svg width="16" height="16" viewBox="0 0 24 24" style="opacity:.8"><path fill="currentColor" d="M9.5 3a6.5 6.5 0 0 1 5.2 10.3l4 4a1 1 0 0 1-1.4 1.4l-4-4A6.5 6.5 0 1 1 9.5 3m0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z"/></svg>
+            <input id="search-input" placeholder="Search by name, id or desc…" />
+            <button class="select" id="clear-search" title="Clear">✕</button>
+          </div>
 
-      <div>
-        <div style="font-size:13px;color:var(--muted)">Quick ranges</div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn" id="low10">Lowest 10%</button>
-          <button class="btn" id="lowMid">Low-Mid</button>
-          <button class="btn" id="top50">Top 50%</button>
+          <select id="sort-select" class="select" title="Sort">
+            <option value="alpha-asc">Alphabet ↑</option>
+            <option value="alpha-desc">Alphabet ↓</option>
+            <option value="price-asc">Price ↑</option>
+            <option value="price-desc">Price ↓</option>
+          </select>
+
+          <div style="margin-left:auto" class="muted" id="total-count">0 items</div>
+
+          <button id="reload" class="btn" title="Reload items">⟳ reload</button>
         </div>
 
-        <div style="margin-top:12px">
-          <label style="font-size:13px;color:var(--muted)">Similarity ±%</label>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-            <input id="simRange" type="range" min="1" max="50" value="10" aria-label="Similarity percent" />
-            <div id="simLabel" style="font-family:var(--mono);min-width:40px;text-align:center">10%</div>
+        <div class="accent-line" style="width:120px"></div>
+
+        <div id="grid" class="grid" aria-live="polite"></div>
+
+        <div class="pagination">
+          <button class="page-btn" id="prev-page">← Prev</button>
+          <div class="page-info" id="page-info">Page 1</div>
+          <button class="page-btn" id="next-page">Next →</button>
+        </div>
+
+        <div class="muted" style="margin-top:10px;font-size:13px">Tip: click an item to see similar-priced items. Similar tolerance is configurable inside the item modal.</div>
+      </section>
+
+      <!-- Value Reference Panel -->
+      <section id="valueref-panel" class="panel" style="display:none" role="region">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div>
+            <h2 style="margin:0">Value Reference</h2>
+            <p class="muted" style="margin-top:6px">Build a container, set a tolerance %, and get suggested item combos (1–3 items) close to your total.</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="muted">Combos limited to 1–3 items for speed.</div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <main>
-      <div id="grid" class="grid" role="list"></div>
+        <div class="accent-line" style="width:220px"></div>
+
+        <div class="value-ref">
+          <div>
+            <div class="container" id="container">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div class="muted">Container</div>
+                <div class="muted">Total: <strong id="container-total">0</strong></div>
+              </div>
+              <div class="items" id="container-items" aria-live="polite" style="margin-top:10px"></div>
+
+              <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                <input id="add-item-input" placeholder="Search item to add…" style="flex:1;padding:10px;border-radius:10px;background:var(--glass);border:0;color:inherit" />
+                <button id="add-item-btn" class="btn primary">+ Add</button>
+              </div>
+
+              <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                <label class="muted">Tolerance %:</label>
+                <input id="tolerance" type="range" min="1" max="50" value="10" />
+                <div id="tol-val" class="muted" style="min-width:48px;text-align:right">10%</div>
+              </div>
+
+              <div style="margin-top:10px">
+                <button id="find-suggestions" class="btn primary">Find combos</button>
+                <button id="clear-container" class="btn" style="margin-left:8px">Clear</button>
+              </div>
+            </div>
+
+            <div style="margin-top:12px">
+              <h3 style="margin:0 0 8px 0">All items (click to add) — filtered by the search box above</h3>
+              <div id="quick-list"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="muted">Suggestions</div>
+              <div class="muted" id="suggestion-count">0</div>
+            </div>
+
+            <div class="suggestions" id="suggestions"></div>
+
+            <div style="margin-top:12px" class="muted">Note: For datasets with thousands of items this will only try combos among the top ~250 items by value to stay fast. If you want exhaustive search, export the data and run a specialized tool.</div>
+          </div>
+        </div>
+
+        <footer class="small">Combos limited to up to 3 items to avoid massive computation. Works instantly for small/medium datasets.</footer>
+      </section>
     </main>
-
-    <footer>made by wraithcode <3</footer>
   </div>
 
-  <div id="modalRoot" aria-hidden="true"></div>
-
-  <script>
-    const FALLBACK = [
-      { id: "motp", name: "Mask of the Pack", desc: "...", value: 10000, img: "https://via.placeholder.com/96?text=Cobble" },
-      { id: "dagger", name: "Steel Dagger", desc: "...", value: 500, img: "https://via.placeholder.com/96?text=Stone" },
-      { id: "vchest", name: "Valor Chestplate", desc: "...", value: 10500, img: "https://via.placeholder.com/96?text=Ingot" },
-      { id: "hillshine", name: "Hillshine Leather", desc: "...", value: 30, img: "https://via.placeholder.com/96?text=Pick" },
-      { id: "striders", name: "Timber Striders", desc: "...", value: 8000, img: "https://via.placeholder.com/96?text=Apple" }
-    ];
-
-    let ITEMS = [];
-    let filtered = [];
-    let bounds = {min:0,max:0};
-
-    const $ = (s,el=document)=>el.querySelector(s);
-    const fmt = n => `${Number(n).toLocaleString()} AFU`;
-
-    fetch('/items.json')
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.text(); // get raw text first
-  })
-  .then(text => {
-    try {
-      const data = JSON.parse(text); // manual parse so we can catch syntax
-      console.log("Loaded JSON:", data);
-
-      if (Array.isArray(data) && data.length) {
-        ITEMS = data.map(normalize);
-      } else {
-        console.warn("Data not an array with length, using fallback");
-        ITEMS = FALLBACK.map(normalize);
-      }
-    } catch (e) {
-      console.error("JSON syntax error:", e, "\nRaw text was:", text);
-      ITEMS = FALLBACK.map(normalize);
-    }
-    boot();
-  })
-  .catch(err => {
-    console.error("Fetch failed:", err);
-    ITEMS = FALLBACK.map(normalize);
-    boot();
-  });
-
-    function normalize(it){ return { id: it.id || (it.name||'').toLowerCase().replace(/\s+/g,'_'), name: it.name||'Unknown', desc: it.desc||'', value: Number(it.value)||0, img: it.img||'https://via.placeholder.com/96?text=Item' } }
-
-    function boot(){
-      bounds = getBounds(ITEMS);
-      $('#dbCount').textContent = ITEMS.length;
-      $('#minPrice').value = bounds.min; $('#maxPrice').value = bounds.max; $('#showCount').textContent = ITEMS.length;
-      filtered = ITEMS.slice(); renderGrid(); attachEvents();
-    }
-
-    function getBounds(list){ if(!list.length) return {min:0,max:0}; const vals = list.map(i=>i.value); return {min: Math.min(...vals), max: Math.max(...vals)} }
-
-    function renderGrid(){
-      const grid = $('#grid'); grid.innerHTML = '';
-      if(!filtered.length){ grid.innerHTML = '<div style="color:var(--muted)">No items match filters.</div>'; $('#showCount').textContent = 0; return }
-      $('#showCount').textContent = filtered.length;
-      filtered.forEach(it => {
-        const btn = document.createElement('button'); btn.className='card'; btn.setAttribute('role','listitem');
-        btn.innerHTML = `
-          <img loading="lazy" src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}" class="thumb" />
-          <div class="meta">
-            <div class="name">${escapeHtml(it.name)} <span class="id">${escapeHtml(it.id)}</span></div>
-            <div class="desc">${escapeHtml(it.desc)}</div>
-          </div>
-          <div class="value">${fmt(it.value)}</div>`;
-        btn.addEventListener('click', ()=>openModal(it));
-        grid.appendChild(btn);
-      })
-    }
-
-    function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;') }
-
-    function attachEvents(){
-      $('#search').addEventListener('input', applyFilters);
-      $('#minPrice').addEventListener('input', applyFilters);
-      $('#maxPrice').addEventListener('input', applyFilters);
-      $('#sort').addEventListener('change', applyFilters);
-      $('#reset').addEventListener('click', ()=>{ $('#search').value=''; $('#minPrice').value=bounds.min; $('#maxPrice').value=bounds.max; $('#sort').value='value_desc'; applyFilters(); });
-      $('#all').addEventListener('click', ()=>{ $('#minPrice').value=bounds.min; $('#maxPrice').value=bounds.max; applyFilters(); });
-      $('#low10').addEventListener('click', ()=>{ const r=bounds; $('#minPrice').value=r.min; $('#maxPrice').value=Math.round(r.min + (r.max-r.min)*0.1); applyFilters(); });
-      $('#lowMid').addEventListener('click', ()=>{ const r=bounds; $('#minPrice').value=Math.round(r.min + (r.max-r.min)*0.1); $('#maxPrice').value=Math.round(r.min + (r.max-r.min)*0.5); applyFilters(); });
-      $('#top50').addEventListener('click', ()=>{ const r=bounds; $('#minPrice').value=Math.round(r.min + (r.max-r.min)*0.5); $('#maxPrice').value=r.max; applyFilters(); });
-
-      // update similarity label
-      const sim = $('#simRange'); const simLabel = $('#simLabel');
-      sim.addEventListener('input', (e)=>{ simLabel.textContent = e.target.value + '%'; });
-    }
-
-    function applyFilters(){
-      const q = ($('#search').value||'').trim().toLowerCase();
-      const min = Number($('#minPrice').value || 0);
-      const max = Number($('#maxPrice').value || 0);
-      const sort = $('#sort').value;
-      filtered = ITEMS.filter(it => it.value >= min && it.value <= max && ( !q || it.name.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q) || it.id.toLowerCase().includes(q) ));
-      if(sort === 'value_asc') filtered.sort((a,b)=>a.value-b.value);
-      else if(sort === 'value_desc') filtered.sort((a,b)=>b.value-a.value);
-      else if(sort === 'name_asc') filtered.sort((a,b)=>a.name.localeCompare(b.name));
-      renderGrid();
-    }
-
-    // modal logic with smooth open animation
-    function openModal(base){
-      const root = $('#modalRoot'); root.innerHTML = '';
-      const back = document.createElement('div'); back.className='modal-backdrop';
-      back.addEventListener('click', (e)=>{ if(e.target===back) closeModal(root); });
-
-      const modal = document.createElement('div'); modal.className='modal';
-      modal.innerHTML = `
-        <div class="modal-head">
-          <img src="${escapeHtml(base.img)}" class="thumb" style="width:84px;height:84px;border-radius:12px" />
-          <div>
-            <div style="font-size:18px;font-weight:700">${escapeHtml(base.name)}</div>
-            <div class="id" style="margin-top:6px">${escapeHtml(base.id)}</div>
-            <div class="desc" style="margin-top:8px;color:var(--muted)">${escapeHtml(base.desc)}</div>
-            <div style="margin-top:10px;font-family:var(--mono);font-weight:700">Value: ${fmt(base.value)}</div>
-          </div>
-          <div style="margin-left:auto"><button id="closeModal" class="btn">Close</button></div>
+  <!-- Modal -->
+  <div class="modal-back" id="modal-back" role="dialog" aria-hidden="true">
+    <div class="modal" id="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 id="modal-title">Item</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label class="muted">Tolerance %</label>
+          <input id="modal-tol" type="range" min="1" max="50" value="5" />
+          <div id="modal-tol-val" class="muted">5%</div>
+          <button id="modal-close" class="btn">✕</button>
         </div>
+      </div>
 
-        <div class="modal-grid">
-          <div>
-            <h3 style="margin:0;color:var(--muted)">Items with similar value</h3>
-            <div style="font-size:13px;color:var(--muted);margin-top:6px">Within ±<span id="simPct">${$('#simRange')?$('#simRange').value:10}</span>%</div>
-            <div id="similarList" style="margin-top:12px" class="similar"></div>
+      <div style="height:12px"></div>
+      <div class="row">
+        <div class="thumb-lg"><img id="modal-img" src="" alt="" style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async"></div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 id="modal-name" style="margin:0">Name</h2>
+              <div class="muted id" id="modal-id">id</div>
+            </div>
+            <div class="value" id="modal-value">0</div>
           </div>
+          <p id="modal-desc" class="muted" style="margin-top:8px"></p>
 
-          <div>
-            <div style="font-size:13px;color:var(--muted)">Adjust similarity</div>
-            <input id="simAdjust" type="range" min="1" max="50" value="${$('#simRange')?$('#simRange').value:10}" style="width:100%;margin-top:8px" />
-            <div style="margin-top:10px;color:var(--muted);font-size:13px">Click any similar item to open it here.</div>
+          <div style="margin-top:14px">
+            <div class="muted">Similar-priced items</div>
+            <div id="modal-similar" class="similar-list"></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ========== FALLBACK ITEMS ==========
+const FALLBACK_ITEMS = [
+  {"id":"motp","name":"Mask of the Pack","desc":"Furry costume","value":10000,"img":"https://placehold.co/100x100?text=motp"}
+];
+
+let ITEMS = [];
+let filtered = [];
+let page = 1;
+const PAGE_SIZE = 12;
+
+// DOM refs
+const grid = document.getElementById('grid');
+const searchInput = document.getElementById('search-input');
+const clearSearch = document.getElementById('clear-search');
+const sortSelect = document.getElementById('sort-select');
+const totalCount = document.getElementById('total-count');
+const pageInfo = document.getElementById('page-info');
+const prevPage = document.getElementById('prev-page');
+const nextPage = document.getElementById('next-page');
+const reloadBtn = document.getElementById('reload');
+
+const modalBack = document.getElementById('modal-back');
+const modal = document.getElementById('modal');
+const modalName = document.getElementById('modal-name');
+const modalId = document.getElementById('modal-id');
+const modalDesc = document.getElementById('modal-desc');
+const modalImg = document.getElementById('modal-img');
+const modalValue = document.getElementById('modal-value');
+const modalSimilar = document.getElementById('modal-similar');
+const modalClose = document.getElementById('modal-close');
+const modalTol = document.getElementById('modal-tol');
+const modalTolVal = document.getElementById('modal-tol-val');
+
+const containerItemsEl = document.getElementById('container-items');
+const containerTotalEl = document.getElementById('container-total');
+const addItemInput = document.getElementById('add-item-input');
+const addItemBtn = document.getElementById('add-item-btn');
+const quickList = document.getElementById('quick-list');
+const suggestionsEl = document.getElementById('suggestions');
+const findSuggestionsBtn = document.getElementById('find-suggestions');
+const clearContainerBtn = document.getElementById('clear-container');
+const toleranceRange = document.getElementById('tolerance');
+const tolVal = document.getElementById('tol-val');
+const suggestionCount = document.getElementById('suggestion-count');
+const totalItemsText = document.getElementById('total-count');
+
+let container = [];
+let currentModalItem = null;
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]) }) }
+function formatNumber(n){ return n.toLocaleString(); }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+function normalizeItem(it){
+  return {
+    id: String(it.id ?? it.itemId ?? it.name ?? Math.random().toString(36).slice(2,8)),
+    name: String(it.name ?? it.id ?? 'Unknown'),
+    desc: String(it.desc ?? it.description ?? ''),
+    value: Number(it.value ?? it.price ?? 0) || 0,
+    img: it.img || it.image || `https://via.placeholder.com/128?text=${encodeURIComponent(String(it.name || it.id).slice(0,10))}`
+  };
+}
+
+async function loadItems(){
+  try{
+    const r = await fetch('/items.json', {cache:'no-cache'});
+    if(!r.ok) throw new Error('not ok');
+    const data = await r.json();
+    if(!Array.isArray(data) || !data.length) throw new Error('empty or invalid data');
+    ITEMS = data.map(normalizeItem);
+  }catch(e){
+    console.warn('Using fallback items. Err:', e && e.message);
+    ITEMS = FALLBACK_ITEMS.map(normalizeItem);
+  }
+  filtered = ITEMS.slice();
+  page = 1;
+  render();
+  populateQuickList();
+}
+
+function applyFilters(){
+  const q = (searchInput.value || '').trim().toLowerCase();
+  filtered = ITEMS.filter(it => { if(!q) return true; return (it.name + ' ' + it.id + ' ' + it.desc).toLowerCase().includes(q); });
+  const s = sortSelect.value;
+  switch(s){
+    case 'alpha-asc': filtered.sort((a,b)=>a.name.localeCompare(b.name)); break;
+    case 'alpha-desc': filtered.sort((a,b)=>b.name.localeCompare(a.name)); break;
+    case 'price-asc': filtered.sort((a,b)=>a.value - b.value); break;
+    case 'price-desc': filtered.sort((a,b)=>b.value - a.value); break;
+  }
+  page = 1;
+  renderGrid();
+}
+
+function render(){
+  totalItemsText.textContent = `${ITEMS.length} items`;
+  applyFilters();
+}
+
+function renderGrid(){
+  grid.innerHTML = '';
+  totalItemsText.textContent = `${filtered.length} results`;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  page = clamp(page,1,totalPages);
+  const start = (page-1)*PAGE_SIZE;
+  const pageItems = filtered.slice(start, start + PAGE_SIZE);
+  if(pageItems.length === 0){
+    grid.innerHTML = `<div class="muted" style="grid-column:1/-1;padding:18px">No items found.</div>`;
+  } else {
+    pageItems.forEach(it=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.id = it.id;
+      // build inner content using template but include safe onerror guard
+      card.innerHTML = `
+        <div class="thumb"><img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}" loading="lazy" decoding="async" onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src='https://via.placeholder.com/128?text=No+Image';}"></div>
+        <div class="meta">
+          <h3>${escapeHtml(it.name)}</h3>
+          <div class="id">${escapeHtml(it.id)}</div>
+          <p>${escapeHtml(truncate(it.desc,80))}</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div class="value">${formatNumber(it.value)}</div>
+          <div><button class="btn" data-id="${escapeHtml(it.id)}">Details</button></div>
         </div>
       `;
+      // clicking the card anywhere (except clicks on buttons/inputs/links) opens modal
+      card.addEventListener('click', (e)=>{ if(e.target.closest('button,a,input')) return; openModalById(it.id); });
+      // details button should stop propagation and open modal too
+      const detailsBtn = card.querySelector('button[data-id]');
+      if(detailsBtn){ detailsBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openModalById(detailsBtn.getAttribute('data-id')); }); }
+      grid.appendChild(card);
+    });
+  }
+  pageInfo.textContent = `Page ${page} / ${totalPages}`;
+}
 
-      back.appendChild(modal); root.appendChild(back);
-      document.body.style.overflow = 'hidden';
+function truncate(s,n){ return s.length>n ? s.slice(0,n-1)+'…' : s }
 
-      // animate open
-      requestAnimationFrame(()=> modal.classList.add('open'));
+// modal
+function openModalById(id){
+  const it = ITEMS.find(x=>x.id===id);
+  if(!it) return;
+  currentModalItem = it;
+  modalName.textContent = it.name;
+  modalId.textContent = it.id;
+  modalDesc.textContent = it.desc || '(no description)';
+  modalImg.src = it.img;
+  modalImg.dataset.failed = '';
+  modalImg.onerror = function(){ if(!this.dataset.failed){ this.dataset.failed='1'; this.src='https://via.placeholder.com/240?text=No+Image'; } };
+  modalValue.textContent = formatNumber(it.value);
+  modalTol.value = modalTolVal.textContent = 5;
+  showModal();
+  renderSimilarItems(it, Number(modalTol.value));
+}
+function showModal(){ modalBack.style.display = 'flex'; setTimeout(()=> modal.classList.add('show'), 10); modalBack.setAttribute('aria-hidden','false'); }
+function hideModal(){ modal.classList.remove('show'); setTimeout(()=>{ modalBack.style.display='none'; modalBack.setAttribute('aria-hidden','true'); },200); }
+modalClose.addEventListener('click', hideModal);
+modalBack.addEventListener('click', (e)=>{ if(e.target === modalBack) hideModal(); });
+modalTol.addEventListener('input', ()=>{ modalTolVal.textContent = modalTol.value + '%'; if(currentModalItem) renderSimilarItems(currentModalItem, Number(modalTol.value)); });
 
-      $('#closeModal').addEventListener('click', ()=> closeModal(root));
-      $('#simAdjust').addEventListener('input', (e)=>{ $('#simPct').textContent = e.target.value + '%'; populateSimilar(base, Number(e.target.value)); });
-      populateSimilar(base, Number($('#simAdjust').value));
+function renderSimilarItems(item, tolPercent=5){
+  modalSimilar.innerHTML = '';
+  const low = item.value * (1 - tolPercent/100);
+  const high = item.value * (1 + tolPercent/100);
+  const similar = ITEMS.filter(it=>it.id !== item.id && it.value >= low && it.value <= high).sort((a,b)=>Math.abs(a.value-item.value) - Math.abs(b.value-item.value)).slice(0,12);
+  if(!similar.length){ modalSimilar.innerHTML = `<div class="muted" style="padding:10px">No similar-priced items found within ±${tolPercent}%.</div>`; return; }
+  similar.forEach(s=>{
+    const el = document.createElement('div');
+    el.className = 'small-item';
+    el.innerHTML = `<div style="display:flex;gap:10px;align-items:center"><div style="width:40px;height:40px;border-radius:6px;overflow:hidden;background:#041018"><img src="${escapeHtml(s.img)}" style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src='https://via.placeholder.com/64?text=?';}"></div><div><div style="font-weight:700">${escapeHtml(s.name)}</div><div class="muted" style="font-size:12px">${escapeHtml(s.id)}</div></div></div><div style="text-align:right">${formatNumber(s.value)}</div>`;
+    modalSimilar.appendChild(el);
+  });
+}
+
+// value ref – quick list now shows ALL items filtered by add-item search
+function populateQuickList(){
+  quickList.innerHTML = '';
+  const q = (addItemInput.value || '').trim().toLowerCase();
+  // show all items that match q (if q empty -> show all)
+  const list = ITEMS.slice().filter(it=>{
+    if(!q) return true;
+    return it.name.toLowerCase().includes(q) || it.id.toLowerCase().includes(q) || it.desc.toLowerCase().includes(q);
+  }).sort((a,b)=>a.name.localeCompare(b.name));
+
+  list.forEach(it=>{
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.title = `${it.name} — ${it.id} — ${it.value}`;
+    b.innerHTML = `<span style="font-weight:700">${escapeHtml(it.name)}</span><span class="muted" style="margin-left:8px">${formatNumber(it.value)}</span>`;
+    b.addEventListener('click', ()=> addToContainer(it.id));
+    quickList.appendChild(b);
+  });
+}
+
+function renderContainer(){
+  containerItemsEl.innerHTML = '';
+  container.forEach(entry=>{
+    const it = ITEMS.find(x=>x.id===entry.id);
+    if(!it) return;
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `
+      <div style="display:flex;gap:8px;align-items:center">
+        <img src="${escapeHtml(it.img)}" style="width:28px;height:28px;border-radius:6px;object-fit:cover">
+        <div>
+          <div style="font-weight:700">${escapeHtml(it.name)}</div>
+          <div class="muted" style="font-size:12px">${escapeHtml(it.id)}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" min="1" max="64" value="${entry.qty}" 
+          style="width:40px"
+          data-id="${escapeHtml(it.id)}"
+        />
+        <div class="muted">× ${formatNumber(it.value)}</div>
+        <div class="remove" data-id="${escapeHtml(it.id)}">✕</div>
+      </div>`;
+    containerItemsEl.appendChild(chip);
+  });
+
+  // update qty on input
+  containerItemsEl.querySelectorAll('input[type=number]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const entry = container.find(x=>x.id===inp.dataset.id);
+      if(entry) entry.qty = clamp(parseInt(inp.value)||1, 1, 64);
+      containerTotalEl.textContent = formatNumber(containerTotal());
+    });
+  });
+
+  containerItemsEl.querySelectorAll('.remove').forEach(btn=>{
+    btn.addEventListener('click', ()=> removeFromContainer(btn.getAttribute('data-id')));
+  });
+
+  containerTotalEl.textContent = formatNumber(containerTotal());
+}
+
+
+function addToContainer(id){
+  const existing = container.find(x=>x.id===id);
+  if(existing){
+    existing.qty = clamp(existing.qty + 1, 1, 64); // increment qty
+  } else {
+    container.push({id, qty:1});
+  }
+  renderContainer();
+}
+
+function removeFromContainer(id){
+  container = container.filter(x=>x.id!==id);
+  renderContainer();
+}
+
+function removeFromContainer(id){ const idx = container.indexOf(id); if(idx>=0) container.splice(idx,1); renderContainer(); }
+function containerTotal(){
+  return container.reduce((sum,entry)=>{
+    const it = ITEMS.find(x=>x.id===entry.id);
+    return sum + (it ? it.value * entry.qty : 0);
+  }, 0);
+}
+
+addItemBtn.addEventListener('click', ()=>{ const q = (addItemInput.value||'').trim().toLowerCase(); if(!q) return; const it = ITEMS.find(x=> x.name.toLowerCase().includes(q) || x.id.toLowerCase() === q || x.id.toLowerCase().includes(q) || x.name.toLowerCase()===q); if(!it){ alert('No matching item found'); return; } addToContainer(it.id); addItemInput.value = ''; populateQuickList(); });
+addItemInput.addEventListener('input', ()=>{ populateQuickList(); });
+
+toleranceRange.addEventListener('input', ()=>{ tolVal.textContent = toleranceRange.value + '%'; });
+clearContainerBtn.addEventListener('click', ()=>{ container = []; renderContainer(); suggestionsEl.innerHTML=''; suggestionCount.textContent='0' });
+
+findSuggestionsBtn.addEventListener('click', ()=>{ const total = containerTotal(); if(total <= 0){ alert('Container is empty — add items first'); return; } const tol = Number(toleranceRange.value) / 100; findCombos(total, tol); });
+
+function findCombos(target, tol){
+  suggestionsEl.innerHTML = '';
+  suggestionCount.textContent = 'Searching…';
+  const MAX_CANDIDATES = 250;
+  const candidates = [];
+  ITEMS.forEach(it=>{
+    var multcap = 4;
+    for(let q=1;q<=multcap;q++){ // allow up to x4 in suggestions (tweak as you want)
+      candidates.push({
+        id: it.id + (q>1 ? `x${q}` : ''),
+        base: it,
+        qty: q,
+        value: it.value * q,
+        name: it.name
+      });
     }
+  });
+  const low = target * (1 - tol);
+  const high = target * (1 + tol);
+  const found = [];
 
-    function closeModal(root){
-      const modal = root.querySelector('.modal');
-      if(modal){ modal.classList.remove('open'); setTimeout(()=>{ root.innerHTML=''; document.body.style.overflow = ''; }, 180); } else { root.innerHTML = ''; document.body.style.overflow = ''; }
-    }
+  for(let i=0;i<candidates.length;i++){ const a=candidates[i]; if(a.value >= low && a.value <= high) found.push({items:[a], sum:a.value, diff:Math.abs(target-a.value)}); }
 
-    function populateSimilar(base, pct){
-      const list = findSimilar(base, pct);
-      const holder = $('#similarList'); holder.innerHTML = '';
-      if(!list.length){ holder.innerHTML = '<div style="color:var(--muted)">No similar items in current database.</div>'; return }
-      list.forEach(s => {
-        const div = document.createElement('div'); div.className='similar-item';
-        div.innerHTML = `
-          <img src="${escapeHtml(s.img)}" class="thumb" style="width:48px;height:48px" />
-          <div style="flex:1">
-            <div style="font-weight:600;color:var(--fg)">${escapeHtml(s.name)}</div>
-            <div style="font-size:13px;color:var(--muted)">${fmt(s.value)}</div>
-          </div>
-          <div><button class="btn small">Open</button></div>`;
-        div.querySelector('button').addEventListener('click', ()=> openModal(s));
-        holder.appendChild(div);
-      })
-    }
+  const vals = candidates.map(it=>({it:it, v:it.value})).sort((x,y)=>x.v - y.v);
+  let l=0, r=vals.length-1;
+  while(l<r){ const sum = vals[l].v + vals[r].v; if(sum < low) l++; else if(sum > high) r--; else { found.push({items:[vals[l].it, vals[r].it], sum: sum, diff:Math.abs(target - sum)}); l++; r--; } }
 
-    function findSimilar(base, pct){
-      if(!base) return [];
-      const low = base.value * (1 - pct/100); const high = base.value * (1 + pct/100);
-      return ITEMS.filter(it=>it.id !== base.id && it.value >= low && it.value <= high).sort((a,b)=>Math.abs(a.value-base.value)-Math.abs(b.value-base.value));
+  const N = vals.length;
+  for(let i=0;i<N;i++){
+    for(let j=i+1;j<N;j++){
+      const partial = vals[i].v + vals[j].v;
+      if(partial > high) break;
+      let lo=j+1, hi=N-1;
+      while(lo<=hi){ const mid=Math.floor((lo+hi)/2); const sum = partial + vals[mid].v; if(sum < low) lo = mid+1; else if(sum > high) hi = mid-1; else { found.push({items:[vals[i].it, vals[j].it, vals[mid].it], sum: sum, diff: Math.abs(target - sum)}); let left=mid-1; while(left>j && partial + vals[left].v >= low){ found.push({items:[vals[i].it, vals[j].it, vals[left].it], sum: partial + vals[left].v, diff: Math.abs(target - (partial + vals[left].v))}); left--; } let right=mid+1; while(right<N && partial + vals[right].v <= high){ found.push({items:[vals[i].it, vals[j].it, vals[right].it], sum: partial + vals[right].v, diff: Math.abs(target - (partial + vals[right].v))}); right++; } break; } }
     }
-  </script>
+  }
+
+  const keySet = new Set();
+  const unique = [];
+  for(const f of found){ const key = f.items.map(x=>x.id).sort().join('|'); if(!keySet.has(key)){ keySet.add(key); unique.push(f); } }
+  unique.sort((a,b)=>a.diff - b.diff);
+  const out = unique.slice(0,30);
+  if(!out.length){ suggestionsEl.innerHTML = `<div class="muted">No combinations found within ±${(tol*100).toFixed(0)}% for ${formatNumber(target)}.</div>`; suggestionCount.textContent='0'; return; }
+  suggestionCount.textContent = String(out.length);
+  out.forEach(s=>{ const el = document.createElement('div'); el.className='suggestion'; const left = document.createElement('div'); left.style.display='flex'; left.style.flexDirection='column'; left.innerHTML = `<div style="font-weight:700">${s.items.map(x=>(escapeHtml(x.name)+(x.qty>1?(' x'+x.qty):''))).join(' + ')}</div><div class="muted">${s.items.map(x=>x.id).join(', ')}</div>`; const right = document.createElement('div'); right.style.textAlign='right'; right.innerHTML = `<div style="font-weight:800">${formatNumber(s.sum)}</div><div class="muted">diff ${formatNumber(Math.abs(target - s.sum))}</div>`; el.appendChild(left); el.appendChild(right); suggestionsEl.appendChild(el); });
+}
+
+// tabs
+document.querySelectorAll('.tab').forEach(t=>{ t.addEventListener('click', ()=>{ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); const tab = t.getAttribute('data-tab'); document.getElementById('catalogue-panel').style.display = tab==='catalogue' ? '' : 'none'; document.getElementById('valueref-panel').style.display = tab==='valueref' ? '' : 'none'; }); });
+
+// search/sort/pagination events
+searchInput.addEventListener('input', ()=>{ applyFilters(); }); clearSearch.addEventListener('click', ()=>{ searchInput.value=''; applyFilters(); }); sortSelect.addEventListener('change', ()=>{ applyFilters(); }); prevPage.addEventListener('click', ()=>{ page = Math.max(1,page-1); renderGrid(); }); nextPage.addEventListener('click', ()=>{ page = page+1; renderGrid(); }); reloadBtn.addEventListener('click', ()=>{ loadItems(); });
+
+// helper
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ if(modalBack.style.display==='flex') hideModal(); } });
+addItemInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ addItemBtn.click(); } });
+
+// initial load
+loadItems();
+
+// expose a small debug hook
+window._catalog = { reload: loadItems, addToContainer, removeFromContainer };
+</script>
 </body>
 </html>
-
