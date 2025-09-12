@@ -1,16 +1,16 @@
 [
   {
-    "id": "",
-    "name": "",
+    "id": "placeholder",
+    "name": "Placeholder Item",
     "value": 0,
-    "desc": "",
-    "img": ""
+    "desc": "read the name dumbahh",
+    "img": "https://placehold.co/100x100?text=wow"
   },
   {
     "id": "zombie-frag",
     "name": "Zombie Fragment",
     "value": 5,
-    "desc": "",
-    "img": ""
+    "desc": "Common drop from mine zombies.",
+    "img": "https://placehold.co/100x100?text=zombie\n-frag"
   }
 ]
